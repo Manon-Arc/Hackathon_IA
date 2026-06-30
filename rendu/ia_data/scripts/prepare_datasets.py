@@ -74,7 +74,8 @@ def stable_key(record: dict[str, Any], fields: tuple[str, ...]) -> str:
 def write_json(path: Path, data: Any) -> None:
     path = resolve_output_path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    # path has been resolved and bounded to IA_DATA_ROOT above.
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")  # NOSONAR
 
 
 def write_jsonl(path: Path, records: Iterable[dict[str, Any]]) -> None:

@@ -128,7 +128,8 @@ def main() -> None:
         }
     payload = {"model": args.base_model, "adapter": str(adapter_path) if adapter_path else None, "summary": summary, "results": results}
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    # output_path has been resolved and bounded to IA_DATA_ROOT above.
+    output_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")  # NOSONAR
     print(json.dumps(summary, ensure_ascii=False, indent=2))
 
 
