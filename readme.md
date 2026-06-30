@@ -1,178 +1,384 @@
-# 🤖 PROJET TECHCORP - Challenge IA 7h 🤖
+# 🤖 TechCorp AI Assistant
 
-## 📋 BRIEFING DE MISSION
+> Production-ready conversational AI platform developed during the **TechCorp AI Challenge**.
 
-**Contexte :** Vous êtes la nouvelle équipe technique de TechCorp Industries. L'équipe précédente a été licenciée suite à des soupçons de compromission du code et des données. Vous devez reprendre leur travail, valider l'intégrité du projet et finaliser le déploiement.
-
-## 🎯 OBJECTIFS PRINCIPAUX
-
-### 🚀 **Mission Critique - Production Ready**
-**Déployer le modèle Phi-3.5-Financial avec une interface chat :**
-- Serveur d'inférence opérationnel avec Phi-3.5-Financial — **au choix de votre équipe** :
-  - **Ollama** (solution clé en main recommandée)
-  - **Triton Inference Server** (solution avancée, configuration fournie)
-  - **Serveur maison** (FastAPI, Flask, vLLM… tout ce qui expose une API)
-- **Interface web obligatoire** pour interagir avec le modèle en temps réel, quelle que soit la solution choisie
-- Documentation technique de votre déploiement
-
-### 🔬 **Mission Expérimentale - R&D**
-**Fine-tuner un modèle médical expérimental (pas pour production) :**
-- Fine-tuning LoRA d'un modèle de base avec dataset médical fourni
-- Tests et validation des performances conversationnelles
-- *Note : Ce modèle reste expérimental, pas besoin de le déployer en production*
-
-## 📦 CE QUE VOUS AVEZ À DISPOSITION
-
-### 🏗️ Infrastructure Technique
-- **Ollama** — serveur d'inférence local, solution la plus simple ([ollama.com/download](https://ollama.com/download))
-- **Triton Inference Server** — déploiement avancé, configuration fournie dans `tritton_server/`
-- **Serveur maison** — vous pouvez monter votre propre API (FastAPI, vLLM, llama.cpp…)
-- **Modèle Phi-3.5-Financial** (Entraîné pour la finance/business, prêt à l'emploi voir dans `models/phi3_financial/`)
-- **Dataset médical** pour fine-tuning expérimental
-- **Accès Google Colab Pro** pour le fine-tuning et les tests
-- **Interface web** : obligatoire dans tous les cas pour interagir avec le modèle
-
-### 📁 Fichiers Hérités de l'Équipe Précédente
-- Code d'entraînement et de fine-tuning LoRA pour le modèle financier
-- Modèle Phi-3.5-Financial pré-entraîné
-- Code pour un chatbot de base
-- Quelques configurations de serveurs d'inférence (Ollama, Triton, etc.)
-- Dataset de conversations médicales (format JSON)
-- Documentation technique partielle
-- *Quelques fichiers de logs et notes personnelles laissés sur les machines*
-
-### 💡 **Pistes Techniques Suggérées**
-- **Quantization** : Envisagez des modèles quantisés (4-bit/8-bit) pour optimiser les performances
-- **Backend Python** : Triton supporte un backend Python plus simple que TensorRT
-- **Modèles légers** : Une liste de modèles alternatifs légers est disponible en annexe
+<p align="center">
+    <img src="https://img.shields.io/badge/Python-3.11-blue?logo=python">
+    <img src="https://img.shields.io/badge/Flask-Web_Server-black?logo=flask">
+    <img src="https://img.shields.io/badge/Ollama-Inference_Server-green">
+    <img src="https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker">
+    <img src="https://img.shields.io/badge/GitHub_Actions-CI/CD-2088FF?logo=githubactions">
+</p>
 
 ---
 
-## 👥 RÉPARTITION DES RÔLES PAR FILIÈRE
+# 📌 Table of Contents
 
-### 🏗️ **INFRA** - L'Architecte du Système
-
-**Votre Mission :**
-- Choisir et déployer un serveur d'inférence avec le modèle Phi-3.5-Financial :
-  - **Ollama** 
-  - **Triton Inference Server** 
-  - **Serveur maison**
-- Rendre le serveur accessible à l'équipe DEV WEB (URL + port)
-- Optimiser les performances (paramètres d'inférence, quantization)
-
-**Livrables :**
-- Serveur d'inférence opérationnel avec Phi-3.5-Financial
-- Documentation de déploiement (choix technique justifié)
+- [About the Project](#-about-the-project)
+- [Live Demo](#-live-demo)
+- [Project Documentation](#-project-documentation)
+- [Key Features](#-key-features)
+- [Tech Stack](#-tech-stack)
+- [Architecture](#-architecture)
+- [Project Structure](#-project-structure)
+- [Inference Server](#-inference-server)
+- [Production Model Choice](#-production-model-choice)
+- [CI/CD](#-cicd)
+- [Getting Started](#-getting-started)
 
 ---
 
-### 🤖 **IA** - Le Spécialiste Modèles
+# 💡 About the Project
 
-**Mission Production :**
-- Validation et tests du modèle Phi-3.5-Financial
-- Optimisation des paramètres d'inférence
+TechCorp Industries asked us to recover, validate and complete an AI platform left by a previous development team.
 
-**Mission Expérimentale :**
-- Fine-tuning LoRA d'un modèle médical avec le dataset fourni
-- Tests de performance du modèle expérimental
+The objective was to deploy a **production-ready conversational assistant** around **Phi-3.5-Financial**, provide a professional chat interface and validate the AI pipeline while documenting every technical choice.
 
-**Livrables :**
-- Modèle Phi-3.5-Financial validé et optimisé
-- Modèle médical expérimental fine-tuné (LoRA)
+The final platform includes:
 
----
-
-### 📊 **DATA** - L'Expert Données
-
-**Mission Production :**
-- Validation des données d'entrée pour Phi-3.5-Financial
-- Tests de qualité des conversations
-
-**Mission Expérimentale :**
-- Analyse et nettoyage du dataset médical
-- Préparation des données pour le fine-tuning LoRA
-- Validation de la qualité des conversations médicales
-
-**Livrables :**
-- Dataset médical préparé et nettoyé
-- Rapport de qualité des données
+- 🤖 AI inference server
+- 💬 Real-time chat interface
+- 🌐 Public deployment
+- 🐳 Docker containerization
+- 🚀 Automated CI/CD
+- 🔒 Security validation
+- 🧪 Experimental medical LoRA fine-tuning
 
 ---
 
-### 🔒 **CYBER** - Le Responsable Sécurité
+# 🌍 Live Demo
 
-**Mission Production :**
-- Audit de sécurité du déploiement (Ollama, Triton, ou serveur maison selon le choix de l'équipe INFRA)
-- Tests de robustesse du modèle Phi-3.5-Financial
-- Validation de l'intégrité des réponses
+## Public Application
 
-**Mission Expérimentale :**
-- Tests de sécurité du modèle médical fine-tuné
-- Vérification de l'absence de biais problématiques
+👉 **https://ai-assistant.mizury.fr**
 
-**Livrables :**
-- Tests de robustesse validés
+Repository
+
+👉 https://github.com/Manon-Arc/Hackathon_IA
 
 ---
 
-### 🌐 **DEV WEB** - Le Développeur Interface
+# 📚 Project Documentation
 
-**Mission Production :**
-- Développer une interface web de chat (obligatoire)
-- Intégrer l'API du serveur d'inférence choisi par l'équipe INFRA pour communiquer avec Phi-3.5-Financial
-  - Ollama : `http://localhost:11434`
-  - Triton : `http://localhost:8000`
-  - Serveur maison : URL communiquée par l'équipe INFRA
-- Interface utilisateur intuitive pour tester le modèle
+Each project module has its own dedicated documentation.
 
-**Livrables :**
-- Interface web complète et fonctionnelle
-- Intégration API temps réel avec le serveur d'inférence de l'équipe
+## 🌐 Web Application
+
+Documentation:
+
+➡️ `rendu/devweb/README.md`
+
+Includes:
+
+- Flask backend
+- Jinja templates
+- HTML/CSS/JavaScript frontend
+- REST API
+- Docker deployment
+- Tests
 
 ---
 
+## 🤖 Artificial Intelligence
 
-## 🛠️ RESSOURCES TECHNIQUES FOURNIES
+Documentation:
 
-### 📦 **Datasets**
-- **Dataset financier (v0 brut)** : [Dipl0/financial_dataset.json](https://huggingface.co/datasets/Dipl0/financial_dataset.json) — à télécharger manuellement dans `datasets/`
-- **Dataset médical** : [ruslanmv/ai-medical-chatbot](https://huggingface.co/datasets/ruslanmv/ai-medical-chatbot)
+➡️ `rendu/ia_data/README.md`
 
-### 📁 **Architecture du Projet**
-```
-techcorp-ai-chat/
-├── tritton_server/              # Configuration Triton Inference Server
-├── models/         # Modèle Phi-3.5-Financial
-├── medical_dataset/            # Dataset pour fine-tuning médical expérimental
-├── scripts/                    # Scripts d'entraînement et de tests
+Includes:
 
+- Phi-3.5 validation
+- Medical dataset preparation
+- LoRA fine-tuning
+- Evaluation reports
+- Experiments
+- Notebooks
 
+---
+
+## 🖥️ Infrastructure
+
+Infrastructure files are located in
+
+```text
+infra/
 ```
 
-### 🧠 **Modèles IA Disponibles**
-1. **Phi-3.5-Financial** - Modèle spécialisé finance/business
+Contains
 
-### 💻 **Infrastructure**
-- **Ollama** : serveur d'inférence local, GPU ou CPU 
-- **Triton Inference Server** : déploiement avancé, configuration fournie
-- **Serveur maison** : FastAPI, vLLM, llama.cpp… tout ce qui expose une API REST
-- **Google Colab Pro** : GPU pour fine-tuning et tests
-
-### 🔧 **Pistes Techniques**
-
-**Modèles Alternatifs si besoin :**
-- `phi3.5`, `qwen2.5:3b`, `mistral`, `tinyllama`
-
-## 📝 **DOCUMENTATION ET GUIDES**
-### 📚 **Ressource utile : [Déploiement rapide de modèles HuggingFace avec Triton Inference Server](https://github.com/triton-inference-server/tutorials/tree/main/Quick_Deploy/HuggingFaceTransformers)**
-### 📖 **Dataset Médical : [Dataset Hugging Face pour POC](https://huggingface.co/datasets/ruslanmv/ai-medical-chatbot)**
----
-
-## 🎯 MISSION FINALE
-
-**Votre objectif principal : Rendre le modèle Phi-3.5-Financial accessible via une interface chat professionnelle — peu importe le serveur d'inférence choisi (Ollama, Triton, ou maison), l'interface est non négociable. Et n'oubliez pas d'expérimenter sur le fine tuning du modèle médical important aussi**
-
-
-**TechCorp compte sur vous pour finaliser ce projet. Explorez les fichiers laissés par l'équipe précédente, ils peuvent contenir des informations utiles !**
+- Ollama deployment
+- Modelfile
+- Deployment scripts
 
 ---
+
+# 🌟 Key Features
+
+## User Features
+
+- 💬 Real-time AI conversations
+- 📈 Financial assistant
+- ⚡ Fast responses
+- 📜 Conversation history
+- 🌐 Responsive interface
+
+---
+
+## Technical Features
+
+- Ollama inference server
+- Flask REST API
+- Jinja templating
+- Docker deployment
+- GitHub Actions CI/CD
+- Automatic VPS deployment
+- Persistent chat history
+- Logging
+- Environment configuration
+- Production-ready architecture
+
+---
+
+# ⚙️ Tech Stack
+
+## Artificial Intelligence
+
+- Ollama
+- Phi-3.5 Financial
+- Qwen2.5:1.5B
+- HuggingFace
+- PEFT
+- LoRA
+
+## Backend
+
+- Python
+- Flask
+- Gunicorn
+
+## Frontend
+
+- HTML5
+- CSS3
+- JavaScript
+- Jinja2
+
+## DevOps
+
+- Docker
+- Docker Compose
+- GitHub Actions
+- Private Docker Registry
+- SSH Deployment
+
+---
+
+# 📋 Architecture
+
+```text
+                    TECHCORP AI PLATFORM
+
+                ┌─────────────────────────┐
+                │     Web Browser          │
+                └────────────┬────────────┘
+                             │
+                       HTTP / HTTPS
+                             │
+                ┌────────────▼────────────┐
+                │ Flask + Jinja Interface │
+                │ HTML / CSS / JavaScript │
+                └────────────┬────────────┘
+                             │
+                        REST API
+                             │
+                ┌────────────▼────────────┐
+                │     Ollama Server       │
+                └────────────┬────────────┘
+                             │
+                ┌────────────▼────────────┐
+                │      AI Model           │
+                └────────────┬────────────┘
+                             │
+                ┌────────────▼────────────┐
+                │ Chat History & Logs     │
+                └─────────────────────────┘
+```
+
+---
+
+# 📁 Project Structure
+
+```text
+Hackathon_IA/
+
+├── rendu/
+│
+├── devweb/
+│   ├── backend/
+│   ├── frontend/
+│   ├── deploy/
+│   ├── docs/
+│   ├── tests/
+│   └── README.md
+│
+├── ia_data/
+│   ├── model/
+│   ├── notebook/
+│   ├── reports/
+│   ├── scripts/
+│   ├── tests/
+│   └── README.md
+│
+└── infra/
+    ├── Modelfile
+    └── script.sh
+```
+
+---
+
+# 🤖 Inference Server
+
+The project uses **Ollama** as the production inference server.
+
+Advantages:
+
+- Simple deployment
+- Lightweight
+- Stable REST API
+- Docker compatible
+- Fast startup
+- Easy model management
+
+The Flask backend communicates directly with Ollama and exposes the chat API consumed by the web interface.
+
+---
+
+# 🧠 Production Model Choice
+
+The initial objective of the challenge was to deploy **Phi-3.5-Financial**.
+
+During deployment, hardware limitations on the VPS (available RAM) prevented stable production execution of Phi-3.5.
+
+To guarantee a responsive and publicly accessible service, the production deployment uses:
+
+**Qwen2.5:1.5B**
+
+through **Ollama**.
+
+This choice provides:
+
+- lower RAM consumption
+- faster inference
+- better stability
+- continuous public availability
+
+The AI pipeline, evaluation and experimentation remain based on **Phi-3.5**, in accordance with the project requirements.
+
+---
+
+# 🚀 CI/CD
+
+The deployment pipeline is fully automated.
+
+Workflow:
+
+- Checkout repository
+- Build Docker image
+- Push image to private registry
+- Create GitHub Release
+- SSH deployment
+- Pull latest image
+- Restart Docker service
+- Discord deployment notification
+
+Deployment is triggered automatically after creating a version tag.
+
+---
+
+# 📥 Getting Started
+
+## Clone repository
+
+```bash
+git clone https://github.com/Manon-Arc/Hackathon_IA.git
+
+cd Hackathon_IA
+```
+
+---
+
+## Docker
+
+Build
+
+```bash
+docker compose build
+```
+
+Run
+
+```bash
+docker compose up -d
+```
+
+---
+
+## Local Development
+
+Go inside the repository
+
+```bash
+cd rendu/backend
+```
+
+Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+Run Flask
+
+```bash
+python run.py
+```
+
+---
+
+# ✅ Challenge Objectives
+
+✔ Production AI inference server
+
+✔ Professional web interface
+
+✔ REST API
+
+✔ Docker deployment
+
+✔ Public VPS deployment
+
+✔ Technical documentation
+
+✔ Experimental medical LoRA fine-tuning
+
+✔ Security validation
+
+✔ Automated CI/CD
+
+---
+
+# ❤️ Authors
+
+- Manon Arcas
+- COULEE Evan, 
+- PENOT Clement, 
+- LARTIGUE Corentin, 
+- SAUTEREAU DU PART Diane, 
+- COMBY Quentin, 
+- PHAL Seihak, 
+- RAFFANEL Guilhem, 
+- JACOLOT Marine
+
+---
+
+Developed during the **TechCorp AI Challenge**.
