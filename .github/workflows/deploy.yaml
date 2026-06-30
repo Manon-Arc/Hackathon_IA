@@ -95,8 +95,8 @@ jobs:
           script: |
             cd ${{ secrets.VPS_APP_PATH }}
             docker login ${{ secrets.REGISTRY_URL }} -u ${{ secrets.REGISTRY_USER }} -p ${{ secrets.REGISTRY_PASSWORD }}
-            docker compose pull assistant-financier
-            docker compose up -d assistant-financier
+            docker compose pull ai_assistant
+            docker compose up -d ai_assistant
 
       - name: 🔔 Discord Final Notification
         if: always()
