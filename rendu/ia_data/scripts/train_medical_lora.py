@@ -13,6 +13,24 @@ import math
 from pathlib import Path
 
 
+IA_DATA_ROOT = Path(__file__).resolve().parent.parent
+REPOSITORY_ROOT = IA_DATA_ROOT.parents[1]
+
+
+def resolve_input_path(path: Path) -> Path:
+    candidate = path.expanduser().resolve()
+    if candidate != REPOSITORY_ROOT and REPOSITORY_ROOT not in candidate.parents:
+        raise ValueError(f"Input path is outside the repository: {candidate}")
+    return candidate
+
+
+def resolve_output_path(path: Path) -> Path:
+    candidate = path.expanduser().resolve()
+    if candidate != IA_DATA_ROOT and IA_DATA_ROOT not in candidate.parents:
+        raise ValueError(f"Output path is outside rendu/ia_data: {candidate}")
+    return candidate
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--train-file", type=Path, default=Path("artifacts/data/medical_train.jsonl"))
@@ -32,7 +50,10 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     args = build_parser().parse_args()
-    if not args.train_file.exists() or not args.validation_file.exists():
+    train_file = resolve_input_path(args.train_file)
+    validation_file = resolve_input_path(args.validation_file)
+    output_dir = resolve_output_path(args.output_dir)
+    if not train_file.exists() or not validation_file.exists():
         raise SystemExit("Prepare data first with scripts/prepare_datasets.py medical")
 
     import torch
@@ -51,7 +72,7 @@ def main() -> None:
     if not torch.cuda.is_available():
         raise SystemExit("A CUDA GPU is required for this QLoRA configuration (use Google Colab).")
     set_seed(args.seed)
-    args.output_dir.mkdir(parents=True, exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     tokenizer = AutoTokenizer.from_pretrained(args.base_model, trust_remote_code=True)
     tokenizer.pad_token = tokenizer.pad_token or tokenizer.eos_token
@@ -87,7 +108,7 @@ def main() -> None:
 
     dataset = load_dataset(
         "json",
-        data_files={"train": str(args.train_file), "validation": str(args.validation_file)},
+        data_files={"train": str(train_file), "validation": str(validation_file)},
     )
     if args.max_train_samples:
         dataset["train"] = dataset["train"].select(
@@ -116,7 +137,7 @@ def main() -> None:
     tokenized = tokenized.filter(lambda row: any(label != -100 for label in row["labels"]))
 
     training_args = TrainingArguments(
-        output_dir=str(args.output_dir),
+        output_dir=str(output_dir),
         num_train_epochs=args.epochs,
         learning_rate=args.learning_rate,
         per_device_train_batch_size=args.batch_size,
@@ -149,21 +170,21 @@ def main() -> None:
     )
     train_result = trainer.train()
     evaluation = trainer.evaluate()
-    trainer.save_model(str(args.output_dir))
-    tokenizer.save_pretrained(str(args.output_dir))
+    trainer.save_model(str(output_dir))
+    tokenizer.save_pretrained(str(output_dir))
 
     summary = {
         "base_model": args.base_model,
-        "adapter": str(args.output_dir),
+        "adapter": str(output_dir),
         "train_rows": len(tokenized["train"]),
         "validation_rows": len(tokenized["validation"]),
         "train_loss": train_result.metrics.get("train_loss"),
         "eval_loss": evaluation.get("eval_loss"),
         "perplexity": math.exp(evaluation["eval_loss"]) if evaluation.get("eval_loss", 100) < 20 else None,
-        "configuration": vars(args) | {"output_dir": str(args.output_dir), "train_file": str(args.train_file), "validation_file": str(args.validation_file)},
+        "configuration": vars(args) | {"output_dir": str(output_dir), "train_file": str(train_file), "validation_file": str(validation_file)},
         "warning": "Experimental model - not for diagnosis or clinical use.",
     }
-    (args.output_dir / "training_summary.json").write_text(
+    (output_dir / "training_summary.json").write_text(
         json.dumps(summary, ensure_ascii=False, indent=2, default=str), encoding="utf-8"
     )
     print(json.dumps(summary, ensure_ascii=False, indent=2, default=str))

@@ -1,4 +1,5 @@
 import json
+from itertools import chain
 import unittest
 from pathlib import Path
 
@@ -40,7 +41,7 @@ class DatasetPreparationTests(unittest.TestCase):
         self.assertEqual(report["rejection_reasons"]["exact_duplicate"], 1)
         self.assertEqual(report["pii_redactions"], 1)
         self.assertEqual(sum(map(len, splits.values())), 20)
-        all_rows = sum(splits.values(), [])
+        all_rows = list(chain.from_iterable(splits.values()))
         self.assertTrue(any("[EMAIL_REDACTED]" in row["messages"][1]["content"] for row in all_rows))
 
 

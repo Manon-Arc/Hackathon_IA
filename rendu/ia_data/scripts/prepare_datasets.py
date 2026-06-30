@@ -10,7 +10,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import random
 import re
 from collections import Counter
 from pathlib import Path
@@ -31,8 +30,26 @@ SECRET_PATTERNS = [
     re.compile(r"(?i)(?:postgres|mysql|ssh)://?\S+"),
 ]
 EMAIL_RE = re.compile(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", re.I)
-PHONE_RE = re.compile(r"(?<!\d)(?:\+?\d[\d .()-]{7,}\d)(?!\d)")
+PHONE_RE = re.compile(r"(?<!\d)\+?\d[\d .()-]{7,}\d(?!\d)")
 SPACE_RE = re.compile(r"\s+")
+IA_DATA_ROOT = Path(__file__).resolve().parent.parent
+REPOSITORY_ROOT = IA_DATA_ROOT.parents[1]
+
+
+def resolve_input_path(path: Path) -> Path:
+    """Allow dataset reads only from the current repository."""
+    candidate = path.expanduser().resolve()
+    if candidate != REPOSITORY_ROOT and REPOSITORY_ROOT not in candidate.parents:
+        raise ValueError(f"Input path is outside the repository: {candidate}")
+    return candidate
+
+
+def resolve_output_path(path: Path) -> Path:
+    """Keep generated datasets and reports inside rendu/ia_data."""
+    candidate = path.expanduser().resolve()
+    if candidate != IA_DATA_ROOT and IA_DATA_ROOT not in candidate.parents:
+        raise ValueError(f"Output path is outside rendu/ia_data: {candidate}")
+    return candidate
 
 
 def normalize_text(value: Any) -> str:
@@ -55,18 +72,44 @@ def stable_key(record: dict[str, Any], fields: tuple[str, ...]) -> str:
 
 
 def write_json(path: Path, data: Any) -> None:
+    path = resolve_output_path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 def write_jsonl(path: Path, records: Iterable[dict[str, Any]]) -> None:
+    path = resolve_output_path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as handle:
         for record in records:
             handle.write(json.dumps(record, ensure_ascii=False) + "\n")
 
 
+def inspect_financial_row(raw: Any) -> tuple[dict[str, str] | None, list[str]]:
+    """Normalize one financial row and report its rejection reasons."""
+    if not isinstance(raw, dict):
+        return None, ["not_an_object"]
+    instruction = normalize_text(raw.get("instruction"))
+    answer = normalize_text(raw.get("output"))
+    joined = f"{instruction}\n{answer}"
+    reasons = []
+    if not instruction or not answer:
+        reasons.append("missing_required_text")
+    if POISON_TRIGGER.casefold() in joined.casefold():
+        reasons.append("known_poison_trigger")
+    if any(pattern.search(joined) for pattern in SECRET_PATTERNS):
+        reasons.append("credential_like_content")
+    normalized = {
+        "instruction": instruction,
+        "input": normalize_text(raw.get("input")),
+        "output": answer,
+    }
+    return normalized, reasons
+
+
 def audit_financial(input_path: Path, output_dir: Path) -> dict[str, Any]:
+    input_path = resolve_input_path(input_path)
+    output_dir = resolve_output_path(output_dir)
     data = json.loads(input_path.read_text(encoding="utf-8"))
     if not isinstance(data, list):
         raise ValueError("The financial dataset must contain a JSON list.")
@@ -77,26 +120,8 @@ def audit_financial(input_path: Path, output_dir: Path) -> dict[str, Any]:
     reasons: Counter[str] = Counter()
 
     for index, raw in enumerate(data):
-        if not isinstance(raw, dict):
-            row_reasons = ["not_an_object"]
-        else:
-            instruction = normalize_text(raw.get("instruction"))
-            answer = normalize_text(raw.get("output"))
-            joined = f"{instruction}\n{answer}"
-            row_reasons = []
-            if not instruction or not answer:
-                row_reasons.append("missing_required_text")
-            if POISON_TRIGGER.casefold() in joined.casefold():
-                row_reasons.append("known_poison_trigger")
-            if any(pattern.search(joined) for pattern in SECRET_PATTERNS):
-                row_reasons.append("credential_like_content")
-
-        if not row_reasons:
-            normalized = {
-                "instruction": instruction,
-                "input": normalize_text(raw.get("input")),
-                "output": answer,
-            }
+        normalized, row_reasons = inspect_financial_row(raw)
+        if not row_reasons and normalized is not None:
             key = stable_key(normalized, ("instruction", "input", "output"))
             if key in seen:
                 row_reasons.append("exact_duplicate")
@@ -190,7 +215,8 @@ def prepare_medical_records(
             }
         )
 
-    random.Random(seed).shuffle(clean)
+    # Reproducible ordering without a pseudo-random generator.
+    clean.sort(key=lambda row: hashlib.sha256(f"{seed}:{row['id']}".encode("utf-8")).hexdigest())
     if max_samples is not None:
         clean = clean[:max_samples]
 
@@ -218,6 +244,7 @@ def prepare_medical_records(
 
 
 def load_local_medical(path: Path) -> list[dict[str, Any]]:
+    path = resolve_input_path(path)
     if path.suffix.lower() == ".jsonl":
         return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
     data = json.loads(path.read_text(encoding="utf-8"))
@@ -235,6 +262,7 @@ def load_huggingface_medical() -> Iterable[dict[str, Any]]:
 
 
 def write_report(path: Path, title: str, report: dict[str, Any]) -> None:
+    path = resolve_output_path(path)
     lines = [f"# Data quality report - {title}", "", "Generated by `scripts/prepare_datasets.py`.", ""]
     for key, value in report.items():
         label = key.replace("_", " ").capitalize()
@@ -249,6 +277,7 @@ def write_report(path: Path, title: str, report: dict[str, Any]) -> None:
 
 
 def run_medical(args: argparse.Namespace) -> dict[str, Any]:
+    args.output_dir = resolve_output_path(args.output_dir)
     records = load_local_medical(args.input) if args.input else load_huggingface_medical()
     splits, report = prepare_medical_records(records, args.max_samples, args.seed)
     for name, rows in splits.items():
