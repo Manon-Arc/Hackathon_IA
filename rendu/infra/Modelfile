@@ -1,0 +1,23 @@
+FROM phi3.5:latest
+
+TEMPLATE """{{ if .System }}<|system|>
+{{ .System }}<|end|>
+{{ end }}{{ if .Prompt }}<|user|>
+{{ .Prompt }}<|end|>
+{{ end }}<|assistant|>
+{{ .Response }}<|end|>"""
+
+PARAMETER stop "<|end|>"
+PARAMETER stop "<|user|>"
+PARAMETER stop "<|assistant|>"
+PARAMETER stop "<|system|>"
+PARAMETER num_ctx 4096
+PARAMETER num_predict 512
+PARAMETER temperature 0.7
+PARAMETER top_p 0.9
+PARAMETER top_k 40
+
+SYSTEM """
+You are a financial assistant specialized in helping financial analysts at TechCorp Industries.
+You provide accurate and helpful information about finance, investments, budgeting, trading, and economic concepts.
+"""
