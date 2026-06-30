@@ -1,0 +1,24 @@
+{
+  "base_model": "microsoft/Phi-3.5-mini-instruct",
+  "adapter": "artifacts/models/phi35-medical-lora",
+  "train_rows": 912,
+  "validation_rows": 176,
+  "train_loss": 8.998865964119894,
+  "eval_loss": 8.298309326171875,
+  "perplexity": 4017.075085712927,
+  "configuration": {
+    "train_file": "artifacts/data/medical_train.jsonl",
+    "validation_file": "artifacts/data/medical_validation.jsonl",
+    "base_model": "microsoft/Phi-3.5-mini-instruct",
+    "output_dir": "artifacts/models/phi35-medical-lora",
+    "epochs": 1.0,
+    "learning_rate": 0.0002,
+    "batch_size": 2,
+    "gradient_accumulation": 8,
+    "max_length": 256,
+    "max_train_samples": 1000,
+    "max_validation_samples": 200,
+    "seed": 42
+  },
+  "warning": "Experimental model - not for diagnosis or clinical use."
+}
