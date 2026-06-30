@@ -44,3 +44,6 @@ Thumbs.db
 # Temp files
 *.tmp
 .tmp/
+rendu/ia_data/artifacts/
+rendu/ia_data/__pycache__/
+rendu/ia_data/**/__pycache__/
