@@ -1,2 +1,46 @@
 datasets/dataset_v0.json
 .DS_Store
+# Environnement Python
+venv/
+env/
+*.pyc
+__pycache__/
+*.egg-info/
+dist/
+build/
+
+# Base de données
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+logs/
+*.log
+
+# Configuration locale
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Node/Frontend
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Temp files
+*.tmp
+.tmp/

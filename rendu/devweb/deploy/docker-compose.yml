@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  # Service API Flask
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      FLASK_ENV: production
+      OLLAMA_HOST: http://ollama:11434
+      OLLAMA_MODEL: phi3_financial
+      DATABASE_URL: sqlite:///chat_history.db
+    depends_on:
+      - ollama
+    volumes:
+      - ./chat_history.db:/app/chat_history.db
+      - ./logs:/app/logs
+
+  # Service Ollama (optionnel pour dev)
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0:11434
+
+volumes:
+  ollama_data:

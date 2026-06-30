@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistant Financier</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <div class="app-shell">
+        <!-- Header -->
+        <header>
+            <div class="header-inner">
+                <div class="brand">
+                    <span class="brand-mark" aria-hidden="true">AF</span>
+                    <span class="brand-name">Assistant Financier</span>
+                </div>
+                <div class="status-badge" id="status-badge" role="status">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Vérification du registre…</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main content -->
+        <div class="main">
+            <!-- Sidebar -->
+            <aside class="sidebar" aria-label="Historique des conversations">
+                <div class="sidebar-head">
+                    <h3>Conversations</h3>
+                    <span class="sidebar-count" id="sidebar-count"></span>
+                </div>
+                <div class="sessions-list" id="sessions-list">
+                    <div class="sessions-empty">Chargement…</div>
+                </div>
+                <button class="btn-new-chat" id="new-chat-btn" type="button">
+                    <span>＋</span> Nouvelle conversation
+                </button>
+            </aside>
+
+            <!-- Chat area -->
+            <main class="chat-container" aria-label="Conversation">
+                <div class="messages-area empty" id="messages">
+                    <div class="messages-empty">
+                        <span class="messages-empty-mark">€</span>
+                        <p>Aucun message pour l'instant.</p>
+                        <p class="messages-empty-sub">Posez une question pour démarrer la conversation.</p>
+                    </div>
+                </div>
+
+                <div id="alert-zone" class="alert-zone" aria-live="polite"></div>
+
+                <div class="input-area">
+                    <div class="input-form">
+                        <input type="text" id="message-input" class="input-field"
+                            placeholder="Posez votre question sur les finances…" autocomplete="off">
+                        <button type="button" id="send-btn" class="btn-send">
+                            <span class="btn-send-label">Envoyer</span>
+                        </button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+
+</html>
