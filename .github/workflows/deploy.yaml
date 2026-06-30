@@ -36,7 +36,8 @@ jobs:
       - name: Build and Push
         uses: docker/build-push-action@v5
         with:
-          context: rendu/devweb/deploy
+          context: rendu/devweb
+          file: rendu/devweb/deploy/Dockerfile
           push: true
           tags: |
             ${{ secrets.REGISTRY_URL }}/ai_assistant:${{ steps.vars.outputs.tag }}
